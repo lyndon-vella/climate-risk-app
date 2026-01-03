@@ -73,8 +73,7 @@ export default function Map({ location, seaLevelRise, onHoverElevation }: MapPro
       container: mapContainer.current,
       style: 'mapbox://styles/mapbox/outdoors-v12',
       center: [0, 20],
-      zoom: 2,
-      terrain: { source: 'mapbox-dem', exaggeration: 1.5 }
+      zoom: 2
     })
 
     map.current.on('load', () => {
@@ -86,6 +85,9 @@ export default function Map({ location, seaLevelRise, onHoverElevation }: MapPro
         tileSize: 512,
         maxzoom: 14
       })
+
+      // Set terrain after source is added
+      map.current.setTerrain({ source: 'mapbox-dem', exaggeration: 1.5 })
 
       map.current.addLayer({
         id: 'sky',
@@ -103,7 +105,7 @@ export default function Map({ location, seaLevelRise, onHoverElevation }: MapPro
     map.current.on('mousemove', (e) => {
       if (!map.current) return
       const elevation = map.current.queryTerrainElevation([e.lngLat.lng, e.lngLat.lat])
-      onHoverElevation(elevation)
+      onHoverElevation(elevation ?? null)
     })
 
     map.current.on('mouseout', () => {
