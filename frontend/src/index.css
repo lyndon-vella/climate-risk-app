@@ -1,0 +1,228 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+  background: #f5f5f5;
+}
+
+#root {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.app-container {
+  display: flex;
+  height: 100vh;
+}
+
+.sidebar {
+  width: 380px;
+  background: white;
+  box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+  padding: 20px;
+  overflow-y: auto;
+  z-index: 10;
+}
+
+.sidebar h1 {
+  font-size: 1.5rem;
+  color: #1a365d;
+  margin-bottom: 20px;
+}
+
+.map-container {
+  flex: 1;
+  position: relative;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  font-weight: 600;
+  color: #2d3748;
+  margin-bottom: 8px;
+}
+
+.form-group input,
+.form-group select {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 1rem;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: #3182ce;
+  box-shadow: 0 0 0 3px rgba(49, 130, 206, 0.1);
+}
+
+.sea-level-buttons {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.sea-level-btn {
+  flex: 1;
+  min-width: 50px;
+  padding: 12px 8px;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  background: white;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.sea-level-btn:hover {
+  border-color: #3182ce;
+}
+
+.sea-level-btn.active {
+  background: #3182ce;
+  border-color: #3182ce;
+  color: white;
+}
+
+.sea-level-btn.active.level-1 { background: #48bb78; border-color: #48bb78; }
+.sea-level-btn.active.level-2 { background: #ecc94b; border-color: #ecc94b; color: #1a202c; }
+.sea-level-btn.active.level-3 { background: #ed8936; border-color: #ed8936; }
+.sea-level-btn.active.level-4 { background: #e53e3e; border-color: #e53e3e; }
+.sea-level-btn.active.level-5 { background: #742a2a; border-color: #742a2a; }
+
+.elevation-display {
+  background: #edf2f7;
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.elevation-display .label {
+  font-size: 0.875rem;
+  color: #718096;
+}
+
+.elevation-display .value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #2d3748;
+}
+
+.risk-assessment {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 20px;
+  margin-top: 20px;
+}
+
+.risk-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 15px;
+}
+
+.risk-badge {
+  padding: 6px 16px;
+  border-radius: 20px;
+  font-weight: 700;
+  font-size: 0.875rem;
+  text-transform: uppercase;
+}
+
+.risk-badge.low { background: #c6f6d5; color: #22543d; }
+.risk-badge.medium { background: #fefcbf; color: #744210; }
+.risk-badge.high { background: #fed7d7; color: #822727; }
+.risk-badge.critical { background: #742a2a; color: white; }
+
+.risk-details {
+  font-size: 0.9rem;
+  color: #4a5568;
+  line-height: 1.6;
+}
+
+.advice-list {
+  margin-top: 15px;
+  padding-left: 20px;
+}
+
+.advice-list li {
+  margin-bottom: 8px;
+  color: #4a5568;
+}
+
+.hover-elevation {
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  background: rgba(255,255,255,0.95);
+  padding: 10px 15px;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  font-size: 0.875rem;
+  z-index: 100;
+}
+
+.hover-elevation strong {
+  color: #2d3748;
+}
+
+.loading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #718096;
+  font-size: 0.9rem;
+}
+
+.search-btn {
+  width: 100%;
+  padding: 14px;
+  background: #3182ce;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.search-btn:hover {
+  background: #2c5282;
+}
+
+.search-btn:disabled {
+  background: #a0aec0;
+  cursor: not-allowed;
+}
+
+.geocoder-container {
+  margin-bottom: 20px;
+}
+
+.mapboxgl-ctrl-geocoder {
+  width: 100% !important;
+  max-width: none !important;
+  box-shadow: none !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 8px !important;
+}
+
+.radius-circle {
+  fill: rgba(49, 130, 206, 0.1);
+  stroke: #3182ce;
+  stroke-width: 2;
+}
