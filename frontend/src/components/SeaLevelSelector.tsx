@@ -3,7 +3,7 @@ interface SeaLevelSelectorProps {
   onChange: (value: number) => void
 }
 
-const SEA_LEVELS = [1, 2, 3, 4, 5]
+const SEA_LEVELS = [1, 2, 3, 4, 5, 8]
 
 export default function SeaLevelSelector({ value, onChange }: SeaLevelSelectorProps) {
   return (
@@ -39,6 +39,8 @@ function getScenarioDescription(level: number): string {
       return 'Extreme scenario - major ice sheet instability'
     case 5:
       return 'Catastrophic scenario - complete Greenland ice sheet melt'
+    case 8:
+      return 'Worst case - Greenland + West Antarctic ice sheet collapse'
     default:
       return ''
   }

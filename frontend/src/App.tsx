@@ -26,9 +26,16 @@ function App() {
     setIsLoading(true)
 
     try {
-      const response = await fetch(`/api/elevation?lat=${loc.lat}&lng=${loc.lng}`)
+      // Call Open-Meteo API directly (no backend needed)
+      const response = await fetch(
+        `https://api.open-meteo.com/v1/elevation?latitude=${loc.lat}&longitude=${loc.lng}`
+      )
       const data = await response.json()
-      setPropertyElevation(data.elevation)
+      if (data.elevation && data.elevation.length > 0) {
+        setPropertyElevation(data.elevation[0])
+      } else {
+        setPropertyElevation(null)
+      }
     } catch (error) {
       console.error('Failed to fetch elevation:', error)
       setPropertyElevation(null)
@@ -72,7 +79,6 @@ function App() {
       <main className="map-container">
         <Map
           location={location}
-          seaLevelRise={seaLevelRise}
           onHoverElevation={handleHoverElevation}
         />
         {hoverElevation !== null && (

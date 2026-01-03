@@ -100,6 +100,7 @@ body {
 .sea-level-btn.active.level-3 { background: #ed8936; border-color: #ed8936; }
 .sea-level-btn.active.level-4 { background: #e53e3e; border-color: #e53e3e; }
 .sea-level-btn.active.level-5 { background: #742a2a; border-color: #742a2a; }
+.sea-level-btn.active.level-8 { background: #1a202c; border-color: #1a202c; }
 
 .elevation-display {
   background: #edf2f7;

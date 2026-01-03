@@ -7,19 +7,10 @@ mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_TOKEN || 'YOUR_MAPBOX_TOKEN'
 
 interface MapProps {
   location: Location | null
-  seaLevelRise: number
   onHoverElevation: (elevation: number | null) => void
 }
 
-const FLOOD_COLORS: Record<number, string> = {
-  1: 'rgba(72, 187, 120, 0.4)',   // Green
-  2: 'rgba(236, 201, 75, 0.4)',   // Yellow
-  3: 'rgba(237, 137, 54, 0.4)',   // Orange
-  4: 'rgba(229, 62, 62, 0.4)',    // Red
-  5: 'rgba(116, 42, 42, 0.4)',    // Dark red
-}
-
-export default function Map({ location, seaLevelRise, onHoverElevation }: MapProps) {
+export default function Map({ location, onHoverElevation }: MapProps) {
   const mapContainer = useRef<HTMLDivElement>(null)
   const map = useRef<mapboxgl.Map | null>(null)
   const marker = useRef<mapboxgl.Marker | null>(null)
@@ -119,13 +110,6 @@ export default function Map({ location, seaLevelRise, onHoverElevation }: MapPro
     updateRadiusCircle(location)
   }, [location, isMapLoaded])
 
-  // Update flood overlay when sea level rise changes
-  useEffect(() => {
-    if (!map.current || !location || !isMapLoaded) return
-
-    updateFloodOverlay(seaLevelRise)
-  }, [seaLevelRise, location, isMapLoaded])
-
   const updateRadiusCircle = (loc: Location) => {
     if (!map.current) return
 
@@ -197,70 +181,6 @@ export default function Map({ location, seaLevelRise, onHoverElevation }: MapPro
         'line-dasharray': [2, 2]
       }
     })
-  }
-
-  const updateFloodOverlay = (slr: number) => {
-    if (!map.current || !location) return
-
-    const sourceId = 'flood-overlay'
-    const layerId = 'flood-layer'
-
-    // Remove existing flood layer
-    if (map.current.getLayer(layerId)) {
-      map.current.removeLayer(layerId)
-    }
-    if (map.current.getSource(sourceId)) {
-      map.current.removeSource(sourceId)
-    }
-
-    // Create a simple flood visualization
-    // In a real app, this would use actual DEM data
-    // For now, we'll create a visual representation based on elevation coloring
-
-    // Add a fill-extrusion layer to visualize low-lying areas
-    // This is a simplified visualization - real implementation would use DEM tiles
-
-    const floodColor = FLOOD_COLORS[slr]
-
-    // Create flood zone polygon (simplified - in production use actual DEM data)
-    // This creates a visual indicator around the selected location
-    const floodRadius = 10 + (slr * 5) // Increase visual radius with sea level
-    const points = 64
-    const coords = []
-
-    for (let i = 0; i < points; i++) {
-      const angle = (i / points) * 2 * Math.PI
-      const dx = floodRadius * Math.cos(angle)
-      const dy = floodRadius * Math.sin(angle)
-
-      const lat = location.lat + (dy / 111)
-      const lng = location.lng + (dx / (111 * Math.cos(location.lat * Math.PI / 180)))
-
-      coords.push([lng, lat])
-    }
-    coords.push(coords[0])
-
-    map.current.addSource(sourceId, {
-      type: 'geojson',
-      data: {
-        type: 'Feature',
-        properties: {},
-        geometry: {
-          type: 'Polygon',
-          coordinates: [coords]
-        }
-      }
-    })
-
-    map.current.addLayer({
-      id: layerId,
-      type: 'fill',
-      source: sourceId,
-      paint: {
-        'fill-color': floodColor,
-        'fill-opacity': 0.6
-      }
-    }, 'radius-circle-fill')
   }
 
   return (
