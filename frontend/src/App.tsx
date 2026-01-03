@@ -79,6 +79,7 @@ function App() {
       <main className="map-container">
         <Map
           location={location}
+          seaLevelRise={seaLevelRise}
           onHoverElevation={handleHoverElevation}
         />
         {hoverElevation !== null && (

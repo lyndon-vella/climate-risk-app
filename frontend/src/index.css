@@ -101,6 +101,10 @@ body {
 .sea-level-btn.active.level-4 { background: #e53e3e; border-color: #e53e3e; }
 .sea-level-btn.active.level-5 { background: #742a2a; border-color: #742a2a; }
 .sea-level-btn.active.level-8 { background: #1a202c; border-color: #1a202c; }
+.sea-level-btn.active.level-15 { background: #2d1b4e; border-color: #2d1b4e; }
+.sea-level-btn.active.level-25 { background: #1e1e1e; border-color: #1e1e1e; }
+.sea-level-btn.active.level-40 { background: #0d0d0d; border-color: #0d0d0d; }
+.sea-level-btn.active.level-70 { background: #000000; border-color: #000000; }
 
 .elevation-display {
   background: #edf2f7;
