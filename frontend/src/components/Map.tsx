@@ -47,18 +47,22 @@ export default function Map({ location, seaLevelRise, onHoverElevation }: MapPro
     return points
   }, [])
 
-  // Fetch elevations for points
+  // Fetch elevations for points using NZ 8m DEM API
   const fetchElevations = useCallback(async (points: { lat: number; lng: number }[]): Promise<number[]> => {
-    // Open-Meteo supports batch requests
-    const lats = points.map(p => p.lat).join(',')
-    const lngs = points.map(p => p.lng).join(',')
+    // Open Topo Data NZ DEM API (8m resolution)
+    // Format: locations=lat,lng|lat,lng|...
+    const locations = points.map(p => `${p.lat},${p.lng}`).join('|')
 
     try {
       const response = await fetch(
-        `https://api.open-meteo.com/v1/elevation?latitude=${lats}&longitude=${lngs}`
+        `https://api.opentopodata.org/v1/nzdem8m?locations=${locations}`
       )
       const data = await response.json()
-      return data.elevation || []
+
+      if (data.status === 'OK' && data.results) {
+        return data.results.map((r: { elevation: number | null }) => r.elevation ?? 0)
+      }
+      return []
     } catch (error) {
       console.error('Failed to fetch elevations:', error)
       return []
@@ -72,8 +76,8 @@ export default function Map({ location, seaLevelRise, onHoverElevation }: MapPro
     map.current = new mapboxgl.Map({
       container: mapContainer.current,
       style: 'mapbox://styles/mapbox/outdoors-v12',
-      center: [0, 20],
-      zoom: 2
+      center: [174.7633, -41.2865], // New Zealand (Wellington)
+      zoom: 5
     })
 
     map.current.on('load', () => {
@@ -379,9 +383,12 @@ export default function Map({ location, seaLevelRise, onHoverElevation }: MapPro
             <span style={{ width: '12px', height: '12px', borderRadius: '50%', background: '#0066cc', border: '1px solid #003366' }}></span>
             <span>Flooded ({floodPoints.filter(p => p.elevation <= seaLevelRise).length} points)</span>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '6px' }}>
             <span style={{ width: '10px', height: '10px', borderRadius: '50%', background: '#22c55e', border: '1px solid #166534' }}></span>
             <span>Safe ({floodPoints.filter(p => p.elevation > seaLevelRise).length} points)</span>
+          </div>
+          <div style={{ fontSize: '0.7rem', color: '#718096', borderTop: '1px solid #e2e8f0', paddingTop: '6px' }}>
+            Data: LINZ NZ DEM 8m
           </div>
         </div>
       )}
