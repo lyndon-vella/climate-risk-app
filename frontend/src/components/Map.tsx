@@ -51,21 +51,34 @@ export default function Map({ location, seaLevelRise, onHoverElevation }: MapPro
   const fetchElevations = useCallback(async (points: { lat: number; lng: number }[]): Promise<number[]> => {
     // Open Topo Data NZ DEM API (8m resolution)
     // Format: locations=lat,lng|lat,lng|...
-    const locations = points.map(p => `${p.lat},${p.lng}`).join('|')
+    // Round coordinates to 4 decimal places to reduce URL length
+    const locations = points.map(p =>
+      `${p.lat.toFixed(4)},${p.lng.toFixed(4)}`
+    ).join('|')
 
     try {
       const response = await fetch(
         `https://api.opentopodata.org/v1/nzdem8m?locations=${locations}`
       )
+
+      if (!response.ok) {
+        console.error('API error:', response.status)
+        return points.map(() => 0)
+      }
+
       const data = await response.json()
 
       if (data.status === 'OK' && data.results) {
-        return data.results.map((r: { elevation: number | null }) => r.elevation ?? 0)
+        return data.results.map((r: { elevation: number | null }) => {
+          // Return 0 for null elevations (sea/outside coverage)
+          // This will show as "flooded" which is correct for sea level
+          return r.elevation ?? 0
+        })
       }
-      return []
+      return points.map(() => 0)
     } catch (error) {
       console.error('Failed to fetch elevations:', error)
-      return []
+      return points.map(() => 0)
     }
   }, [])
 
@@ -136,14 +149,20 @@ export default function Map({ location, seaLevelRise, onHoverElevation }: MapPro
       // Generate grid of points (20x20 grid within 50km radius)
       const points = generateGridPoints(location.lat, location.lng, 50, 20)
 
-      // Fetch elevations in batches (API may have limits)
-      const batchSize = 100
+      // Fetch elevations in batches (API has URL length limits)
+      // Use smaller batch size to avoid 414 URI Too Long errors
+      const batchSize = 50
       const allElevations: number[] = []
 
       for (let i = 0; i < points.length; i += batchSize) {
         const batch = points.slice(i, i + batchSize)
         const elevations = await fetchElevations(batch)
         allElevations.push(...elevations)
+
+        // Small delay between batches to avoid rate limiting
+        if (i + batchSize < points.length) {
+          await new Promise(resolve => setTimeout(resolve, 100))
+        }
       }
 
       // Create flood points with elevation data
