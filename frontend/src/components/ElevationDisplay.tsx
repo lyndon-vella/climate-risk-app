@@ -20,11 +20,8 @@ export default function ElevationDisplay({ elevation, isLoading, address }: Elev
           </div>
         </>
       ) : (
-        <div style={{ color: '#e53e3e', fontSize: '0.9rem' }}>
+        <div style={{ color: '#e53e3e' }}>
           Elevation data unavailable
-          <div style={{ color: '#718096', fontSize: '0.8rem', marginTop: '5px' }}>
-            Location may be in the sea or outside NZ DEM coverage
-          </div>
         </div>
       )}
       <div style={{ fontSize: '0.75rem', color: '#a0aec0', marginTop: '10px' }}>
