@@ -26,13 +26,13 @@ function App() {
     setIsLoading(true)
 
     try {
-      // Call NZ DEM 8m API (LINZ data via Open Topo Data)
+      // Call Open-Meteo API directly (no backend needed)
       const response = await fetch(
-        `https://api.opentopodata.org/v1/nzdem8m?locations=${loc.lat},${loc.lng}`
+        `https://api.open-meteo.com/v1/elevation?latitude=${loc.lat}&longitude=${loc.lng}`
       )
       const data = await response.json()
-      if (data.status === 'OK' && data.results && data.results.length > 0) {
-        setPropertyElevation(data.results[0].elevation)
+      if (data.elevation && data.elevation.length > 0) {
+        setPropertyElevation(data.elevation[0])
       } else {
         setPropertyElevation(null)
       }
@@ -51,7 +51,7 @@ function App() {
   return (
     <div className="app-container">
       <aside className="sidebar">
-        <h1>NZ Climate Risk Assessment</h1>
+        <h1>Climate Risk Assessment</h1>
 
         <AddressSearch onLocationSelect={handleLocationSelect} />
 

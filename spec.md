@@ -1,12 +1,10 @@
-# NZ Climate Risk Assessment App - Specification
+# Climate Risk Assessment App - Specification
 
 ## Overview
 
-A web application for **New Zealand** that allows users to assess property flood risk from sea level rise. Users enter a New Zealand property address and select a sea level rise scenario (1m to 70m) to visualize flood impact and receive risk assessment with actionable advice.
+A web application that allows users to assess property flood risk from sea level rise. Users enter a property address and select a sea level rise scenario (1m to 70m) to visualize flood impact and receive risk assessment with actionable advice.
 
 **Live Demo:** https://lyndon-vella.github.io/climate-risk-app/
-
-**Coverage:** New Zealand only (using LINZ 8m DEM data)
 
 ---
 
@@ -15,13 +13,12 @@ A web application for **New Zealand** that allows users to assess property flood
 ### Functional Requirements
 
 #### FR1: Address Input
-- Users select from 16 New Zealand regions via dropdown
-- Enter city/town and property address
-- System geocodes using Nominatim with NZ country filter
-- Validates coordinates are within New Zealand bounds
+- Users can enter: country, state/province, city/town, and property address
+- System geocodes the address to coordinates using Nominatim (OpenStreetMap)
+- Invalid addresses display clear error messages
 
 #### FR2: Map Display
-- Display topographic/terrain map centered on New Zealand (Wellington)
+- Display topographic/terrain map centered on the property
 - Flag/pin the property location on the map
 - Show 50km radius circle around the property
 - Support pan, zoom, and 3D tilt controls
@@ -30,7 +27,7 @@ A web application for **New Zealand** that allows users to assess property flood
 #### FR3: Elevation Data
 - Display property elevation in meters above sea level
 - Show elevation on hover for any point on the map
-- **Elevation accuracy: 8m resolution** (LINZ NZ DEM via Open Topo Data)
+- Elevation accuracy: 30m resolution (via Open-Meteo API)
 
 #### FR4: Sea Level Rise Selection
 - 10 discrete options: 1m, 2m, 3m, 4m, 5m, 8m, 15m, 25m, 40m, 70m
@@ -52,7 +49,7 @@ A web application for **New Zealand** that allows users to assess property flood
 
 #### FR5: Flood Visualization
 - Sample ~300 elevation points in a 20x20 grid within 50km radius
-- Fetch real elevation data from LINZ NZ DEM (8m resolution)
+- Fetch real elevation data from Open-Meteo API
 - Display flooded areas (elevation ≤ sea level rise) as blue circles with heatmap
 - Display safe areas (elevation > sea level rise) as green circles
 - Show legend with count of flooded vs safe points
@@ -86,7 +83,6 @@ A web application for **New Zealand** that allows users to assess property flood
 | Mobile responsive | Yes (≥320px width) |
 | Browser support | Chrome, Firefox, Safari, Edge (latest 2 versions) |
 | Hosting | GitHub Pages (static site) |
-| Coverage | New Zealand only |
 
 ---
 
@@ -108,32 +104,14 @@ A web application for **New Zealand** that allows users to assess property flood
 |---------|---------|------|
 | Mapbox | Maps, terrain, 3D visualization | Free tier: 50k loads/month |
 | Nominatim (OSM) | Address geocoding | Free, unlimited |
-| Open Topo Data | NZ DEM elevation queries (8m) | Free, unlimited |
+| Open-Meteo | Elevation queries (batch supported) | Free, unlimited |
 
 ### Data Sources
 
 | Source | Resolution | Coverage | License |
 |--------|------------|----------|---------|
-| **LINZ NZ DEM** | **8m** | New Zealand | CC-BY-4.0 |
+| Open-Meteo Elevation | 30m | Global | Free |
 | Mapbox Terrain DEM | 30m | Global | Mapbox terms |
-
----
-
-## New Zealand Regions
-
-The app supports all 16 New Zealand regions:
-
-| North Island | South Island |
-|--------------|--------------|
-| Northland | Tasman |
-| Auckland | Nelson |
-| Waikato | Marlborough |
-| Bay of Plenty | West Coast |
-| Gisborne | Canterbury |
-| Hawke's Bay | Otago |
-| Taranaki | Southland |
-| Manawatū-Whanganui | |
-| Wellington | |
 
 ---
 
@@ -258,23 +236,16 @@ Steps:
 - TypeScript build fixes
 - Production optimization
 
-### Phase 5: NZ Data Integration ✅
-- Integrated LINZ NZ DEM 8m elevation data
-- NZ-only address search with region dropdown
-- Map centered on New Zealand
-- Bounds validation for NZ coordinates
-
-### Phase 6: Future Enhancements
+### Phase 5: Future Enhancements
 
 | Task | Priority | Status |
 |------|----------|--------|
 | Address autocomplete | High | Planned |
-| Use LINZ 1m LiDAR data | High | Planned |
+| Higher resolution elevation grid | High | Planned |
 | Save/share property reports | Medium | Planned |
 | Multiple property comparison | Medium | Planned |
 | PDF export of risk report | Medium | Planned |
 | Coastal proximity analysis | Medium | Planned |
-| Integration with NZ council flood maps | Medium | Planned |
 | Historical flood data overlay | Low | Planned |
 | Storm surge modeling | Low | Planned |
 
@@ -290,8 +261,8 @@ climate-risk-app/
 ├── frontend/
 │   ├── src/
 │   │   ├── components/
-│   │   │   ├── Map.tsx              # Mapbox map with NZ DEM flood visualization
-│   │   │   ├── AddressSearch.tsx    # NZ region dropdown + address input
+│   │   │   ├── Map.tsx              # Mapbox map with flood visualization
+│   │   │   ├── AddressSearch.tsx    # Address input form
 │   │   │   ├── SeaLevelSelector.tsx # 1-70m sea level buttons
 │   │   │   ├── ElevationDisplay.tsx # Property elevation display
 │   │   │   └── RiskAssessment.tsx   # Risk level and advice
@@ -320,34 +291,18 @@ climate-risk-app/
 
 ### Nominatim Geocoding (Frontend)
 ```javascript
-GET https://nominatim.openstreetmap.org/search?format=json&q={address}&countrycodes=nz&limit=1
+GET https://nominatim.openstreetmap.org/search?format=json&q={address}
 ```
 
-### Open Topo Data NZ DEM (Frontend)
+### Open-Meteo Elevation (Frontend)
 ```javascript
-// Single point (8m resolution)
-GET https://api.opentopodata.org/v1/nzdem8m?locations={lat},{lng}
+// Single point
+GET https://api.open-meteo.com/v1/elevation?latitude={lat}&longitude={lng}
 
-// Multiple points (pipe-separated)
-GET https://api.opentopodata.org/v1/nzdem8m?locations={lat1},{lng1}|{lat2},{lng2}|...
-
-// Response format
-{
-  "results": [
-    { "elevation": 12.5, "location": { "lat": -41.28, "lng": 174.77 } }
-  ],
-  "status": "OK"
-}
+// Batch (up to 100 points)
+GET https://api.open-meteo.com/v1/elevation?latitude={lat1},{lat2},...&longitude={lng1},{lng2},...
 ```
 
 ### Mapbox (Frontend)
 - Map tiles: `mapbox://styles/mapbox/outdoors-v12`
 - Terrain DEM: `mapbox://mapbox.mapbox-terrain-dem-v1`
-
----
-
-## Data Attribution
-
-- **Elevation Data:** LINZ NZ DEM 8m, licensed under CC-BY-4.0
-- **Geocoding:** OpenStreetMap via Nominatim
-- **Map Tiles:** Mapbox

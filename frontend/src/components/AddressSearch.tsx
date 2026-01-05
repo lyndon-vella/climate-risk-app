@@ -5,27 +5,9 @@ interface AddressSearchProps {
   onLocationSelect: (location: Location) => void
 }
 
-const NZ_REGIONS = [
-  'Northland',
-  'Auckland',
-  'Waikato',
-  'Bay of Plenty',
-  'Gisborne',
-  'Hawke\'s Bay',
-  'Taranaki',
-  'Manawatū-Whanganui',
-  'Wellington',
-  'Tasman',
-  'Nelson',
-  'Marlborough',
-  'West Coast',
-  'Canterbury',
-  'Otago',
-  'Southland'
-]
-
 export default function AddressSearch({ onLocationSelect }: AddressSearchProps) {
-  const [region, setRegion] = useState('')
+  const [country, setCountry] = useState('')
+  const [state, setState] = useState('')
   const [city, setCity] = useState('')
   const [address, setAddress] = useState('')
   const [isSearching, setIsSearching] = useState(false)
@@ -40,19 +22,19 @@ export default function AddressSearch({ onLocationSelect }: AddressSearchProps) 
     setIsSearching(true)
     setError(null)
 
-    // Build full address string with New Zealand
-    const fullAddress = [address, city, region, 'New Zealand']
+    // Build full address string
+    const fullAddress = [address, city, state, country]
       .filter(Boolean)
       .join(', ')
 
     try {
-      // Use Nominatim (OpenStreetMap) for geocoding
+      // Use Nominatim (OpenStreetMap) for free geocoding
       const response = await fetch(
         `https://nominatim.openstreetmap.org/search?` +
-        `format=json&q=${encodeURIComponent(fullAddress)}&countrycodes=nz&limit=1`,
+        `format=json&q=${encodeURIComponent(fullAddress)}&limit=1`,
         {
           headers: {
-            'User-Agent': 'NZClimateRiskApp/1.0'
+            'User-Agent': 'ClimateRiskApp/1.0'
           }
         }
       )
@@ -60,27 +42,17 @@ export default function AddressSearch({ onLocationSelect }: AddressSearchProps) 
       const data = await response.json()
 
       if (data.length === 0) {
-        setError('Address not found in New Zealand. Please try a different address.')
+        setError('Address not found. Please try a different address.')
         return
       }
 
       const result = data[0]
-
-      // Validate the result is in New Zealand bounds
-      const lat = parseFloat(result.lat)
-      const lng = parseFloat(result.lon)
-
-      if (lat < -47.5 || lat > -34 || lng < 166 || lng > 179) {
-        setError('Address must be within New Zealand.')
-        return
-      }
-
       onLocationSelect({
-        lat,
-        lng,
+        lat: parseFloat(result.lat),
+        lng: parseFloat(result.lon),
         address: result.display_name,
-        country: 'New Zealand',
-        state: region,
+        country,
+        state,
         city
       })
     } catch (err) {
@@ -100,16 +72,25 @@ export default function AddressSearch({ onLocationSelect }: AddressSearchProps) 
   return (
     <div className="address-search">
       <div className="form-group">
-        <label>Region</label>
-        <select
-          value={region}
-          onChange={(e) => setRegion(e.target.value)}
-        >
-          <option value="">Select region...</option>
-          {NZ_REGIONS.map(r => (
-            <option key={r} value={r}>{r}</option>
-          ))}
-        </select>
+        <label>Country</label>
+        <input
+          type="text"
+          value={country}
+          onChange={(e) => setCountry(e.target.value)}
+          placeholder="e.g., Netherlands"
+          onKeyPress={handleKeyPress}
+        />
+      </div>
+
+      <div className="form-group">
+        <label>State / Province</label>
+        <input
+          type="text"
+          value={state}
+          onChange={(e) => setState(e.target.value)}
+          placeholder="e.g., South Holland"
+          onKeyPress={handleKeyPress}
+        />
       </div>
 
       <div className="form-group">
@@ -118,7 +99,7 @@ export default function AddressSearch({ onLocationSelect }: AddressSearchProps) 
           type="text"
           value={city}
           onChange={(e) => setCity(e.target.value)}
-          placeholder="e.g., Auckland, Wellington, Christchurch"
+          placeholder="e.g., Rotterdam"
           onKeyPress={handleKeyPress}
         />
       </div>
@@ -129,7 +110,7 @@ export default function AddressSearch({ onLocationSelect }: AddressSearchProps) 
           type="text"
           value={address}
           onChange={(e) => setAddress(e.target.value)}
-          placeholder="e.g., 123 Queen Street"
+          placeholder="e.g., 123 Main Street"
           onKeyPress={handleKeyPress}
         />
       </div>
